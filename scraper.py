@@ -22,7 +22,7 @@ def get_driver():
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
 
-    service = Service(r"C:\tools\chromedriver-win64\chromedriver.exe")
+    service = Service("/usr/lib/chromium-browser/chromedriver")
     return webdriver.Chrome(service=service,options=chrome_options)
     
 # FUNCIONES COMUNES
