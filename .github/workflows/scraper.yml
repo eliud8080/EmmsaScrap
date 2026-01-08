@@ -1,0 +1,55 @@
+name: Scraping diario EMMSA
+
+on:
+  schedule:
+    # 06:00 AM Perú (UTC-5)
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+
+jobs:
+  scraping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # 1️⃣ Clonar repositorio
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 2️⃣ Configurar Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 3️⃣ Instalar dependencias
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install selenium pandas
+
+      # 4️⃣ Instalar Chromium y ChromeDriver
+      - name: Install Chromium
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser chromium-chromedriver
+
+      # 5️⃣ Ejecutar scraper de PRECIOS
+      - name: Scraper precios
+        run: |
+          python scraper.py || true
+
+      # 6️⃣ Ejecutar scraper de VOLUMENES
+      - name: Scraper volumenes
+        run: |
+          python scraper2.py || true
+
+      # 7️⃣ Commit y push de los CSV
+      - name: Commit CSVs
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add ArchBIP/*.csv ArchBIV/*.csv
+          git commit -m "Update EMMSA CSVs" || echo "No changes to commit"
+          git push
+
